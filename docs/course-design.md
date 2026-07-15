@@ -113,6 +113,8 @@ GET /todos?completed=false
 
 实现代码之前，学员单独提交 Spec（例如 `spec: define completed todo filtering`）。教师完成第一次检查后，学员再进入测试和实现阶段。
 
+这一节是内容要求（Spec 里必须有什么），课堂上老师要先现场演示一次 AI 辅助写 Spec、AI 辅助写测试和实现——固定的演示 Prompt、讲解顺序、预期产出，见 `docs/lesson/02-writing-spec.md` 和 `docs/lesson/03-ai-implementation.md`。
+
 ## 六、GitHub Actions 流水线设计
 
 ### 6.1 触发条件
@@ -230,145 +232,24 @@ smoke-test 成功
 - Workflow 默认使用只读权限。
 - 只有 `release` Job 申请创建 Release 所需的 `contents: write` 权限。
 
+这一节是设计依据（为什么长这样），课堂上怎么带学员一步步把这份 YAML 写出来、怎么讲解每一行——逐字讲稿见 `docs/lesson/05-basic-ci.md`（lint/test）、`docs/lesson/06-build-and-smoke-test.md`（build/smoke-test，release 的 YAML 也在这一段加上）、`docs/lesson/07-release.md`（讲解 release 概念、打 tag 触发）。
+
 ## 七、三小时课程安排
 
-### 0:00–0:15：项目基线
+这一节只列时间和阶段，具体"老师上课时说什么、做什么"不在这里重复——每个阶段一个独立教案文件，放在 `docs/lesson/`，写课件/备课直接看那边。
 
-操作：
+| 时间 | 阶段 | 教案 |
+|---|---|---|
+| 0:00–0:15 | 项目基线 | `docs/lesson/01-project-baseline.md` |
+| 0:15–0:35 | 编写功能 Spec | `docs/lesson/02-writing-spec.md` |
+| 0:35–1:05 | AI 辅助测试与实现 | `docs/lesson/03-ai-implementation.md` |
+| 1:05–1:15 | 休息 | — |
+| 1:15–1:30 | CI/CD 与 GitHub Actions 核心模型 | `docs/lesson/04-ci-cd-concepts.md` |
+| 1:30–2:05 | 建立基础 CI | `docs/lesson/05-basic-ci.md` |
+| 2:05–2:30 | 构建和验证制品 | `docs/lesson/06-build-and-smoke-test.md` |
+| 2:30–2:50 | 持续交付与 Release | `docs/lesson/07-release.md` |
+| 2:50–3:00 | 复盘与验收 | `docs/lesson/08-wrap-up.md` |
 
-```bash
-uv sync --locked
-uv run ruff check .
-uv run pytest
-uv run todo-api
-```
-
-检查：
-
-- 打开 `/docs`
-- 调用 `/health`
-- 调用已有 Todo 接口
-- 阅读项目结构和已有测试
-
-产出：
-
-- 每位学员确认本地项目能够运行
-
-### 0:15–0:35：编写功能 Spec
-
-操作：
-
-- 分析 `completed` 筛选需求
-- 使用 AI 辅助起草 Spec
-- 明确边界条件和 Out of scope
-- 编写验收场景
-- 提交 Spec
-
-产出：
-
-```text
-specs/001-filter-todos/spec.md
-```
-
-### 0:35–1:05：AI 辅助测试与实现
-
-操作：
-
-1. 根据 Spec 补充测试。
-2. 先运行测试并观察失败。
-3. 使用 AI 辅助完成最小实现。
-4. 运行 Ruff 和 Pytest。
-5. 创建实现提交。
-
-产出：
-
-- 新测试经历红灯到绿灯
-- 本地检查全部通过
-- 功能实现与 Spec 对应
-
-### 1:05–1:15：休息
-
-### 1:15–1:30：CI/CD 与 GitHub Actions 核心模型
-
-内容：
-
-- 手工测试、构建和发布的问题
-- CI、持续交付和持续部署
-- GitHub Actions 的平台定位
-- Event、Workflow、Job、Step、Runner 和 Action
-- 接下来要建的完整流水线
-
-产出：
-
-- 学员能够口头解释接下来要经历的自动化流程
-
-### 1:30–2:05：建立基础 CI
-
-操作：
-
-- 创建 `pipeline.yml`
-- 配置 Pull Request 和 Push 触发条件
-- 建立 `lint` Job
-- 建立 `test` Job
-- Push 功能分支
-- 创建 Pull Request
-- 阅读 Actions 运行页面
-- 故意制造一次失败
-- 通过日志定位并修复
-
-产出：
-
-- Pull Request 中出现自动检查
-- 学员完成一次失败排查
-
-### 2:05–2:30：构建和验证制品
-
-操作：
-
-- 增加 `build` Job
-- 使用 `needs` 依赖 `lint` 和 `test`
-- 执行 `uv build`
-- 上传 Workflow Artifact
-- 增加 `smoke-test` Job
-- 下载并安装 Wheel
-- 启动安装后的应用
-- 请求 `/health`
-
-产出：
-
-- `todo-api-package` Artifact
-- 通过 Smoke Test 的 Wheel
-
-### 2:30–2:50：持续交付与 Release
-
-操作：
-
-- 合并 Pull Request
-- 更新项目版本为 `0.1.0`
-- 创建 `v0.1.0` Tag
-- Push Tag
-- 自动创建 GitHub Release
-- 检查 Release Assets
-
-产出：
-
-```text
-Release v0.1.0
-├── todo_api-0.1.0-py3-none-any.whl
-└── todo_api-0.1.0.tar.gz
-```
-
-### 2:50–3:00：复盘与验收
-
-学员需要能够解释：
-
-1. Spec、测试和实现之间的关系。
-2. 为什么本地通过后还需要 CI。
-3. `lint` 和 `test` 为什么可以并行。
-4. `build` 为什么依赖前两个 Job。
-5. 为什么需要验证 Wheel，而不只验证源码。
-6. Artifact 与 Release 的区别。
-7. Pull Request、`main` 和版本 Tag 分别触发什么行为。
-8. 本课程完成的是哪部分 CI/CD 流程。
+`docs/lesson/00-overview.md` 是这份表格的详细版，还带了参考实现仓库的链接（<https://github.com/ukeSJTU/2026-summer-github-actions-reference>，完整走过一遍学生流程得到的真实 Spec、真实 CI 失败日志、真实 Release）。
 
 任务清单和验收标准见 `docs/homework.md`；教师课前准备见 `docs/teacher-prep.md`。
